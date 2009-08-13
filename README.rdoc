@@ -1,0 +1,93 @@
+= ActiveToken
+
+A simple way to create cryptographic tokens for an Active Record model.  
+
+Tokens generated using one-way cryptographic functions are a popular way to create unique opaque identifiers for objects which can be more or less safely exposed.  
+
+Typical use cases include:
+- sending an invitation email with an activation link
+- sending a password reset email
+- creating an URL to a personalized or private feed without relying on some other authentication scheme
+
+== Usage
+
+This plugin encapsulates all the process of generating and storing the token.  All you need to do is to add a string column (named <tt>token</tt> by default) to the table backing your model and add one line of code to your model:
+
+  class User < ActiveRecord::Base
+    has_token :made_of => [:username, :password, :created_at]
+  end
+
+  user = User.create(:username => 'rachel', :password => 'unicorn')
+  user.token # => 12b3c4f333a56...
+
+The token column name can be changed using the <tt>:field</tt> option.
+
+=== Customization
+
+The default hashing method is multiple rounds SHA-1 but it can be configured (any algorithm available in the Digest module will do):
+
+  class User < ActiveRecord::Base
+    has_token :made_of => [:username, :password, :created_at], :digest => 'MD5', :rounds => 5
+  end
+
+You can also provide an additional salt value in the attributes list and also customize how to glue the pieces together
+
+  class User < ActiveRecord::Base
+    has_token :made_of => ["My salt", :username, :password, :created_at], :join_with => "$*-/!&++"
+  end
+
+You can also manually create the source data to be hashed.  To do so, provide a block which should return either a string or an array of pieces to be glued together.
+
+  class Invitation < ActiveRecord::Base
+    has_token do
+      "#{email}#{Time.now}#{rand(1_000_000)}"
+    end
+  end
+
+  # Or alternatively
+
+  class Invitation < ActiveRecord::Base
+    has_token do
+      [email, Time.now.to_s, rand(1_000_000)]
+    end
+  end
+
+=== Recalculation
+
+By default, the token is only generated once when the record is initially saved, you can force an update of the token on every update:
+
+  class User < ActiveRecord::Base
+    has_token :made_of => [:username, :password, :created_at], :update => true
+  end
+
+Unfortunately, the value of the <tt>updated_at</tt> timestamp does not work as a token source because when the callback is fired, 
+Rails has yet to set that attribute to the current time.  You can easily work around that by passing a block to <tt>has_token</tt>:
+
+  class User < ActiveRecord::Base
+    has_token :made_of => [:username, :password], :update => true do 
+      Time.now
+    end
+  end
+
+== Licence
+
+Copyright (c) 2009 Xavier Defrang, released under the MIT license
+
+Permission is hereby granted, free of charge, to any person obtaining
+a copy of this software and associated documentation files (the
+"Software"), to deal in the Software without restriction, including
+without limitation the rights to use, copy, modify, merge, publish,
+distribute, sublicense, and/or sell copies of the Software, and to
+permit persons to whom the Software is furnished to do so, subject to
+the following conditions:
+
+The above copyright notice and this permission notice shall be
+included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
