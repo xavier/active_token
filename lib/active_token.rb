@@ -20,6 +20,7 @@ module ActiveToken
     # [:join_with]  a string to piece the different source elements together (default: "///")
     # [:digest]     the name of the Digest model to use to generate the token (default: "SHA1")
     # [:rounds]     the number of times the digest algorithm will be run (default: 2)
+    # [:update]     set to <tt>true</tt> if you want the token to be recalculated for every save (default: <tt>false</tt>)
     # 
     # The method also accepts a block which should return either a string or an array of objects implementing <tt>to_s</tt>
     #
