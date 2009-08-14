@@ -11,7 +11,7 @@ Typical use cases include:
 
 == Usage
 
-This plugin encapsulates all the process of generating and storing the token.  All you need to do is to add a string column (named <tt>token</tt> by default) to the table backing your model and add one line of code to your model:
+This plugin encapsulates all the process of generating and storing the token.  All you need to do is to add a string column (named <tt>token</tt> by default) to the table backing your model and add one line of code to your class:
 
   class User < ActiveRecord::Base
     has_token :made_of => [:username, :password, :created_at]
