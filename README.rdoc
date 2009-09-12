@@ -69,7 +69,7 @@ Rails has yet to set that attribute to the current time.  You can easily work ar
     end
   end
 
-== Licence
+== License
 
 Copyright (c) 2009 Xavier Defrang, released under the MIT license
 
